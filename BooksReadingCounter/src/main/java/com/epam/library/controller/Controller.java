@@ -131,7 +131,7 @@ public class Controller {
                     
                 case 8:
                     
-                	getGoodReaders();
+                	getBadReaders();
                     break;
                     
                 default:
@@ -439,7 +439,7 @@ public class Controller {
         
 	}
 	
-	public static void getGoodReaders(){
+	public static void getBadReaders(){
 		ServiceFactory factory=ServiceFactory.getINSTANCE();
         StatisticService statisticService=factory.getStatisticService();
         Map<Employee,Integer> badReaders=null;
