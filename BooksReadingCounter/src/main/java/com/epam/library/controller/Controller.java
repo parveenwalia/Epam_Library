@@ -22,6 +22,7 @@ import com.epam.library.service.factory.ServiceFactory;
 public class Controller {
     private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     public static final Logger logger = Logger.getLogger(Controller.class);
+    private static boolean init=false;
     private final static String READING_ERROR="Reading error";
     private final static String GETTING_BOOKS_ERROR="Getting books error";
     private final static String GETTING_BOOK_ERROR="Getting book error";
@@ -32,41 +33,52 @@ public class Controller {
     private final static String GETTING_GOOD_READERS_ERROR="Getting good readers error";
     private final static String GETTING_BAD_READERS_ERROR="Getting bad readers error";
     private final static String CONNECTION_POOL_INIT_ERROR="Connection pool init error";
+    private final static String AVAILABLE_OPTIONS="Available options:";
+    private final static String SEE_ALL_BOOKS="1 - see all books";
+    private final static String SEE_BOOKS_BY_ID="2 - see book by id";
+    private final static String ADD_BOOK="3 - add book";
+    private final static String UPDATE_BOOK="4 - update book";
+    private final static String RENAME_BOOK="5 - rename book";
+    private final static String DELETE_BOOK="6 - delete book";
+    private final static String GET_GOOD_READERS="7 - get good readers";
+    private final static String GET_BAD_READERS="8 - get bad readers";
+    private final static String OTHER="Other - exit program";
+    private final static String DESIRED_VALUE="Please input desired value";
+    private final static String ID="id-";
+    private final static String TITLE="title-";
+    private final static String AUTHOR="author-";
+    private final static String BRIEF="brief-";
+    private final static String PUBLISH_YEAR="publish year-";
+    private final static String INPUT_ID="Input id";
+    private final static String INPUT_TITLE="Input title";
+    private final static String INPUT_AUTHOR="Input author";
+    private final static String INPUT_BRIEF="Input brief";
+    private final static String INPUT_PUBLISH_YEAR="Input publish year";
+    private final static String INPUT_OLD_TITLE="Input old title";
+    private final static String INPUT_NEW_TITLE="Input new title";
+    
     
 	public static void main(String[] args) {
 		String i = null;
 		int number;
         boolean flag = true;
-        ServiceFactory factory=ServiceFactory.getINSTANCE();
-        BookService bookService=factory.getBookService();
-        StatisticService statisticService=factory.getStatisticService();
-        String strId=null;
-        int id=-1;
-        String title=null;
-        String author=null;
-        String brief=null;
-        String strPublishYear=null;
-        int publishYear=-1;
-        Book book=null;
-        Map<String,Integer> goodReaders=null;
-        Map<Employee,Integer> badReaders=null;
-        String oldTitle=null;
-        String newTitle=null;
-     
-        connectionPoolInit();
+        
+        if(!init){
+        	connectionPoolInit();
+        }
         
         while (flag) {
-            System.out.println("Available options:");
-            System.out.println("1 - see all books");
-            System.out.println("2 - see book by id");
-            System.out.println("3 - add book");
-            System.out.println("4 - update book");
-            System.out.println("5 - rename book");
-            System.out.println("6 - delete book");
-            System.out.println("7 - get good readers");
-            System.out.println("8 - get bad readers");
-            System.out.println("Other - exit program");
-            System.out.println("Please input desired value");
+            System.out.println(AVAILABLE_OPTIONS);
+            System.out.println(SEE_ALL_BOOKS);
+            System.out.println(SEE_BOOKS_BY_ID);
+            System.out.println(ADD_BOOK);
+            System.out.println(UPDATE_BOOK);
+            System.out.println(RENAME_BOOK);
+            System.out.println(DELETE_BOOK);
+            System.out.println(GET_GOOD_READERS);
+            System.out.println(GET_BAD_READERS);
+            System.out.println(OTHER);
+            System.out.println(DESIRED_VALUE);
             
             try {
 				i = reader.readLine();
@@ -84,258 +96,47 @@ public class Controller {
 
                 case 1:
                     
-				    List<Book> books=null;
-				    
-					try {
-						books = bookService.getAllBooks();
-					} 
-					catch (ServiceException e) {
-						logger.error(GETTING_BOOKS_ERROR);
-					}
-                    
-                    for(Book singleBook:books){
-                    	System.out.println("id-"+singleBook.getId());
-                    	System.out.println("title-"+singleBook.getTitle());
-                    	System.out.println("author-"+singleBook.getAuthor());
-                    	System.out.println("brief-"+singleBook.getBrief());
-                    	System.out.println("publish year-"+singleBook.getPublishYear());
-                    }
-                    
+                	seeAllBooks();              
                     break;
 
                 case 2:
                 	
-                	System.out.println("Input id");
-                	
-					try {
-						strId=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-					
-                    id=Integer.valueOf(strId);
-                    
-					try {
-						book=bookService.getBookById(id);
-					} 
-					catch (ServiceException e) {
-						logger.error(GETTING_BOOK_ERROR);
-					}
-                    
-                    System.out.println("id-"+book.getId());
-                	System.out.println("title-"+book.getTitle());
-                	System.out.println("author-"+book.getAuthor());
-                	System.out.println("brief-"+book.getBrief());
-                	System.out.println("publish year-"+book.getPublishYear());
-                	
+                	seeBookById();                	
                     break;
 
                 case 3:
                     
-                	System.out.println("Input title");
-                	
-					try {
-						title=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-					
-					System.out.println("Input author");
-					
-					try {
-						author=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-					
-					System.out.println("Input brief");
-					
-					try {
-						brief=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-					
-					System.out.println("Input publish year");
-					
-					try {
-						strPublishYear=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-					
-                    publishYear=Integer.valueOf(strPublishYear);
-                    
-                    book=new Book();
-                    book.setId(id);
-                    book.setAuthor(author);
-                    book.setBrief(brief);
-                    book.setPublishYear(publishYear);
-                    book.setTitle(title);
-                    
-					try {
-						bookService.addBook(book);
-					} 
-					catch (ServiceException e) {
-						logger.error(ADD_BOOK_ERROR);
-					}
-                    
+                	addBook();          
                     break;
+                    
                 case 4:
                     
-                	System.out.println("Input id");
-                	
-					try {
-						strId=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-					
-                    id=Integer.valueOf(strId);
-                    
-                    System.out.println("Input title");
-                    
-					try {
-						title=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-					
-					System.out.println("Input author");
-					
-					try {
-						author=reader.readLine();
-					}
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-					
-					System.out.println("Input brief");
-					
-					try {
-						brief=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-					
-					System.out.println("Input publish year");
-					
-					try {
-						strPublishYear=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-					
-                    publishYear=Integer.valueOf(strPublishYear);
-                    
-                    book=new Book();
-                    book.setId(id);
-                    book.setAuthor(author);
-                    book.setBrief(brief);
-                    book.setPublishYear(publishYear);
-                    book.setTitle(title);
-                    
-					try {
-						bookService.updateBook(book);
-					}
-					catch (ServiceException e) {
-						logger.error(UPDATE_BOOK_ERROR);
-					}
-                    
+                	updateBook();           
                     break;
+                    
                 case 5:
 
-                	System.out.println("Input oldTitle");
-                	
-					try {
-						oldTitle=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-                    
-                    System.out.println("Input newTitle");
-                    
-					try {
-						newTitle=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-                                  
-					try {
-						bookService.renameBookByTitle(oldTitle, newTitle);
-					} 
-					catch (ServiceException e) {
-						logger.error(RENAME_BOOK_ERROR);
-					}
-                    
+                	renameBook();                 
                     break;
+                	
                 case 6:
                     
-                	System.out.println("Input id");
-                	
-					try {
-						strId=reader.readLine();
-					} 
-					catch (IOException e) {
-						logger.error(READING_ERROR);
-					}
-                    id=Integer.valueOf(strId);
-                                  
-					try {
-						bookService.deleteBook(id);
-					}
-					catch (ServiceException e) {
-						logger.error(DELETE_BOOK_ERROR);
-					}
-                    
+                	deleteBook();                   
                     break;
+                    
                 case 7:
                     
-					try {
-						goodReaders=statisticService.getBooksReadMoreThenOne();
-					}
-					catch (ServiceException e) {
-						logger.error(GETTING_GOOD_READERS_ERROR);
-					}
-                    
-					for(Map.Entry<String,Integer> entry: goodReaders.entrySet()){
-						System.out.println(entry.getKey());
-						System.out.println(entry.getValue());
-					}
-
+                	getGoodReaders();
                     break;
+                    
                 case 8:
                     
-					try {
-						badReaders=statisticService.getBooksReadLessThenTwo();
-					}
-					catch (ServiceException e) {
-						logger.error(GETTING_BAD_READERS_ERROR);
-					}
-                    
-					for(Map.Entry<Employee,Integer> entry: badReaders.entrySet()){
-						System.out.println(entry.getKey().getName());
-						System.out.println(entry.getKey().getBirthday());
-						System.out.println(entry.getValue());
-					}
-
+                	getGoodReaders();
                     break;
                     
                 default:
 
                     flag = false;
-
                     break;
 
             }
@@ -361,6 +162,299 @@ public class Controller {
 		} 
         catch (IOException e1) {
         	logger.error(CONNECTION_POOL_INIT_ERROR);
+		}
+        
+        init=true;       
+	}
+	
+	public static void seeAllBooks(){
+		List<Book> books=null;
+		ServiceFactory factory=ServiceFactory.getINSTANCE();
+        BookService bookService=factory.getBookService();
+		
+		try {
+			books = bookService.getAllBooks();
+		} 
+		catch (ServiceException e) {
+			logger.error(GETTING_BOOKS_ERROR);
+		}
+        
+        for(Book singleBook:books){
+        	System.out.println(ID+singleBook.getId());
+        	System.out.println(TITLE+singleBook.getTitle());
+        	System.out.println(AUTHOR+singleBook.getAuthor());
+        	System.out.println(BRIEF+singleBook.getBrief());
+        	System.out.println(PUBLISH_YEAR+singleBook.getPublishYear());
+        }
+        
+	}
+	
+	public static void seeBookById(){
+		String strId=null;
+		int id=-1;
+		Book book=null;
+		ServiceFactory factory=ServiceFactory.getINSTANCE();
+        BookService bookService=factory.getBookService();
+        
+		System.out.println(INPUT_ID);
+    	
+		try {
+			strId=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+		
+        id=Integer.valueOf(strId);
+        
+		try {
+			book=bookService.getBookById(id);
+		} 
+		catch (ServiceException e) {
+			logger.error(GETTING_BOOK_ERROR);
+		}
+        
+        System.out.println(ID+book.getId());
+    	System.out.println(TITLE+book.getTitle());
+    	System.out.println(AUTHOR+book.getAuthor());
+    	System.out.println(BRIEF+book.getBrief());
+    	System.out.println(PUBLISH_YEAR+book.getPublishYear());
+        
+	}
+	
+	public static void addBook(){
+		ServiceFactory factory=ServiceFactory.getINSTANCE();
+        BookService bookService=factory.getBookService();
+        String title=null;
+        String author=null;
+        String brief=null;
+        String strPublishYear=null;
+        int publishYear=-1;
+        Book book=null;
+
+		System.out.println(INPUT_TITLE);
+    	
+		try {
+			title=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+		
+		System.out.println(INPUT_AUTHOR);
+		
+		try {
+			author=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+		
+		System.out.println(INPUT_BRIEF);
+		
+		try {
+			brief=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+		
+		System.out.println(INPUT_PUBLISH_YEAR);
+		
+		try {
+			strPublishYear=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+		
+        publishYear=Integer.valueOf(strPublishYear);
+        
+        book=new Book();
+        book.setAuthor(author);
+        book.setBrief(brief);
+        book.setPublishYear(publishYear);
+        book.setTitle(title);
+        
+		try {
+			bookService.addBook(book);
+		} 
+		catch (ServiceException e) {
+			logger.error(ADD_BOOK_ERROR);
+		}
+        
+	}
+	
+	public static void updateBook(){
+		ServiceFactory factory=ServiceFactory.getINSTANCE();
+        BookService bookService=factory.getBookService();
+        String title=null;
+        String author=null;
+        String brief=null;
+        String strPublishYear=null;
+        int publishYear=-1;
+        Book book=null;
+        String strId=null;
+		int id=-1;
+        
+		System.out.println(INPUT_ID);
+    	
+		try {
+			strId=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+		
+        id=Integer.valueOf(strId);
+        
+        System.out.println(INPUT_TITLE);
+        
+		try {
+			title=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+		
+		System.out.println(INPUT_AUTHOR);
+		
+		try {
+			author=reader.readLine();
+		}
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+		
+		System.out.println(INPUT_BRIEF);
+		
+		try {
+			brief=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+		
+		System.out.println(INPUT_PUBLISH_YEAR);
+		
+		try {
+			strPublishYear=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+		
+        publishYear=Integer.valueOf(strPublishYear);
+        
+        book=new Book();
+        book.setId(id);
+        book.setAuthor(author);
+        book.setBrief(brief);
+        book.setPublishYear(publishYear);
+        book.setTitle(title);
+        
+		try {
+			bookService.updateBook(book);
+		}
+		catch (ServiceException e) {
+			logger.error(UPDATE_BOOK_ERROR);
+		}
+        
+	}
+	
+	public static void renameBook(){
+		ServiceFactory factory=ServiceFactory.getINSTANCE();
+        BookService bookService=factory.getBookService();
+        String oldTitle=null;
+        String newTitle=null;
+        
+		System.out.println(INPUT_OLD_TITLE);
+    	
+		try {
+			oldTitle=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+        
+        System.out.println(INPUT_NEW_TITLE);
+        
+		try {
+			newTitle=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+                      
+		try {
+			bookService.renameBookByTitle(oldTitle, newTitle);
+		} 
+		catch (ServiceException e) {
+			logger.error(RENAME_BOOK_ERROR);
+		}
+        
+	}
+	
+	public static void deleteBook(){
+		String strId=null;
+		int id=-1;
+		ServiceFactory factory=ServiceFactory.getINSTANCE();
+        BookService bookService=factory.getBookService();
+        
+		System.out.println(INPUT_ID);
+    	
+		try {
+			strId=reader.readLine();
+		} 
+		catch (IOException e) {
+			logger.error(READING_ERROR);
+		}
+        id=Integer.valueOf(strId);
+                      
+		try {
+			bookService.deleteBook(id);
+		}
+		catch (ServiceException e) {
+			logger.error(DELETE_BOOK_ERROR);
+		}
+        
+	}
+	
+	public static void getGoodReaders(){
+        ServiceFactory factory=ServiceFactory.getINSTANCE();
+        StatisticService statisticService=factory.getStatisticService();
+        Map<String,Integer> goodReaders=null;
+        
+		try {
+			goodReaders=statisticService.getBooksReadMoreThenOne();
+		}
+		catch (ServiceException e) {
+			logger.error(GETTING_GOOD_READERS_ERROR);
+		}
+        
+		for(Map.Entry<String,Integer> entry: goodReaders.entrySet()){
+			System.out.println(entry.getKey());
+			System.out.println(entry.getValue());
+		}
+        
+	}
+	
+	public static void getGoodReaders(){
+		ServiceFactory factory=ServiceFactory.getINSTANCE();
+        StatisticService statisticService=factory.getStatisticService();
+        Map<Employee,Integer> badReaders=null;
+        
+		try {
+			badReaders=statisticService.getBooksReadLessThenTwo();
+		}
+		catch (ServiceException e) {
+			logger.error(GETTING_BAD_READERS_ERROR);
+		}
+        
+		for(Map.Entry<Employee,Integer> entry: badReaders.entrySet()){
+			System.out.println(entry.getKey().getName());
+			System.out.println(entry.getKey().getBirthday());
+			System.out.println(entry.getValue());
 		}
         
 	}
